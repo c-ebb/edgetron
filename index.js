@@ -6,7 +6,7 @@ import express from 'express';
 dotenv.config();
 const token = process.env.DISCORD_TOKEN;
 const prefix = '?'; // Define your command prefix here
-const color = '#001d3d'; // Colour of embeds
+const color = '#31572c'; // Colour of embeds
 const errorColor = '#780000' // Colour of error message embeds
 // ---= ROLE IDS ---
 const MOD_ROLE_ID = '1437398624785928252';
@@ -346,3 +346,4 @@ app.listen(port, () => {
 // Log the bot in
 
 client.login(token);
+
