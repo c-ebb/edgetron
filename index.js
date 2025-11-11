@@ -79,7 +79,7 @@ client.on('messageCreate', async message => {
     const command = args.shift().toLowerCase();
 
     // --- 1. Echo Command Logic ---
-    if (command === 'echo') {
+    if (command === 'echo' || commmand === 'e') {
         const textToEcho = args.join(' ').trim();
 
         if (textToEcho) {
@@ -248,7 +248,7 @@ client.on('messageCreate', async message => {
     }
 
     // --- 5. TIMEOUT COMMAND ---
-    if (command === 'timeout') {
+    if (command === 'timeout' || command === 'mute') {
         // --- 1. EXECUTOR PERMISSION CHECK (CUSTOM) ---
         const canExecutorUseCommand = message.member.roles.cache.has(OWNER_ROLE_ID) || message.member.roles.cache.has(MOD_ROLE_ID);
         if (!canExecutorUseCommand) {
@@ -314,3 +314,4 @@ client.on('messageCreate', async message => {
 // Log the bot in
 
 client.login(token);
+
