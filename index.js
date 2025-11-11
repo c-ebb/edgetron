@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, EmbedBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField } from 'discord.js';
 import * as dotenv from 'dotenv';
 
 // Load environment variables from .env file
@@ -6,9 +6,17 @@ dotenv.config();
 const token = process.env.DISCORD_TOKEN;
 const prefix = '?'; // Define your command prefix here
 const color = '#704536'; // Colour of embeds
+// ---= ROLE IDS ---
+const MOD_ROLE_ID = '1437398624785928252';
+const OWNER_ROLE_ID = '1277220062909960253';
+// ---------------------------
 
 // --- 1. Command Data Structure (MANDATORY) ---
 // Define all commands in a single object for easy lookup and help generation
+
+// ----------------------------------------
+// --- Misc Commands ---
+
 const commands = {
     help: {
         description: 'Fetches sonic feet rule 34',
@@ -18,8 +26,29 @@ const commands = {
         description: 'Repeats your message',
         usage: `${prefix}echo <text>` // Example: ?echo Hello there!
     },
-    // Add new commands to this object as you create them!
+
+// --- Misc Commands ---
+// ----------------------------------------
+// --- Moderation Commands ---
+
+    kick: {
+        description: 'Kicks a member from the server',
+        usage: `${prefix}kick @user <reason>`
+    },
+    ban: {
+        description: 'Bans a member from the server',
+        usage: `${prefix}ban @user <reason>`
+    },
+    timeout: {
+        description: 'Times out a member',
+        usage: `${prefix}timeout @user <minutes> <reason>`
+    }
+
+// --- Moderation Commands ---
+// ----------------------------------------
 };
+
+// ----------------------------------------
 // ----------------------------------------
 
 // Create a new client instance with necessary intents
@@ -108,6 +137,62 @@ client.on('messageCreate', async message => {
                 )
 
             message.channel.send({ embeds: [helpEmbed] });
+        }
+    }
+
+    // --- 3. KICK COMMAND ---
+    if (command === 'kick') {
+        // --- 1. EXECUTOR PERMISSION CHECK (CUSTOM) ---
+        // Check if the user is an Owner OR a Mod
+        const canExecutorUseCommand = message.member.roles.cache.has(OWNER_ROLE_ID) || message.member.roles.cache.has(MOD_ROLE_ID);
+        if (!canExecutorUseCommand) {
+            return message.reply("You do not have permission to use this command.");
+        }
+
+        // --- 2. GET TARGET USER ---
+        const target = message.mentions.members.first();
+        if (!target) {
+            return message.reply(`You must specify a user to kick. Usage: \`${commands.kick.usage}\``);
+        }
+
+        // --- 3. HIERARCHY CHECK (CUSTOM ROLES) ---
+        const executorIsOwner = message.member.roles.cache.has(OWNER_ROLE_ID);
+        const targetIsMod = target.roles.cache.has(MOD_ROLE_ID);
+        const targetIsOwner = target.roles.cache.has(OWNER_ROLE_ID);
+
+        // Stop if the target is an Owner (Owners are immune)
+        if (targetIsOwner) {
+            return message.reply("try that again and see what happens...");
+        }
+
+        // Stop if the target is a Mod AND the executor is NOT an Owner (Mods can't kick other Mods)
+        if (targetIsMod && !executorIsOwner) {
+            return message.reply("nice try buddy");
+        }
+
+        // --- 4. BOT PERMISSION CHECK (DISCORD API) ---
+        // This is still required. The bot's role must be high enough in Discord's hierarchy.
+        if (!target.kickable) {
+            return message.reply("I am missing permissions");
+        }
+
+        // --- 5. EXECUTE KICK ---
+        const reason = args.slice(1).join(' ').trim() || 'No reason provided';
+        try {
+            await target.kick(reason);
+            const kickEmbed = new EmbedBuilder()
+                .setColor(color)
+                .setTitle('Member Kicked')
+                .addFields(
+                    { name: 'User', value: target.user.tag, inline: true },
+                    { name: 'Kicked by', value: message.author.tag, inline: true },
+                    { name: 'Reason', value: reason, inline: false }
+                )
+                .setTimestamp();
+            message.channel.send({ embeds: [kickEmbed] });
+        } catch (error) {
+            console.error(error);
+            message.reply('An error occurred while trying to kick this member.');
         }
     }
 });
