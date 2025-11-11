@@ -194,7 +194,12 @@ client.on('messageCreate', async message => {
             message.channel.send({ embeds: [kickEmbed] });
         } catch (error) {
             console.error(error);
-            message.reply('An error occurred while trying to kick this member.');
+            const kickErrorEmbed = new EmbedBuilder()
+                .setColor(errorColorolor)
+                .setTitle('Error')
+                .setDescription(`An error occurred while trying to kick this member.\n\`\`\`${error}\`\`\``)
+                .setTimestamp();
+            message.channel.send({ embeds: [kickErrorEmbed] });
         }
     }
 
@@ -235,7 +240,7 @@ client.on('messageCreate', async message => {
             await target.ban({ reason: reason });
             const banEmbed = new EmbedBuilder()
                 .setColor(color)
-                .setTitle('Member Kicked')
+                .setTitle('Member Banned')
                 .addFields(
                     { name: 'User', value: target.user.tag, inline: true },
                     { name: 'Banned by', value: message.author.tag, inline: true },
@@ -245,7 +250,13 @@ client.on('messageCreate', async message => {
             message.channel.send({ embeds: [banEmbed] });
         } catch (error) {
             console.error(error);
-            message.reply('An error occurred while trying to ban this member.');
+            console.error(error);
+            const kickErrorEmbed = new EmbedBuilder()
+                .setColor(errorColorolor)
+                .setTitle('Error')
+                .setDescription(`An error occurred while trying to ban this member.\n\`\`\`${error}\`\`\``)
+                .setTimestamp();
+            message.channel.send({ embeds: [kickErrorEmbed] });
         }
     }
 
@@ -308,7 +319,13 @@ client.on('messageCreate', async message => {
             message.channel.send({ embeds: [timeoutEmbed] });
         } catch (error) {
             console.error(error);
-            message.reply('An error occurred while trying to time out this member.');
+            console.error(error);
+            const kickErrorEmbed = new EmbedBuilder()
+                .setColor(errorColorolor)
+                .setTitle('Error')
+                .setDescription(`An error occurred while trying to timeout this member.\n\`\`\`${error}\`\`\``)
+                .setTimestamp();
+            message.channel.send({ embeds: [kickErrorEmbed] });
         }
     }
 });
