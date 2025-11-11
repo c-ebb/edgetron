@@ -63,7 +63,7 @@ const client = new Client({
 // --- Bot is Ready ---
 client.on('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag}!`);
-    client.user.setActivity('for ' + prefix + 'help', { type: 3 }); // Setting bot status
+    client.user.setActivity('67', { type: 3 }); // Setting bot status
 });
 
 // --- Command Handling (messageCreate Listener) ---
@@ -314,4 +314,5 @@ client.on('messageCreate', async message => {
 // Log the bot in
 
 client.login(token);
+
 
