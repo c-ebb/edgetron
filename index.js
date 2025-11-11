@@ -80,7 +80,7 @@ client.on('messageCreate', async message => {
     const command = args.shift().toLowerCase();
 
     // --- 1. Echo Command Logic ---
-    if (command === 'echo' || commmand === 'e') {
+    if (command === 'echo' || command === 'e') {
         const textToEcho = args.join(' ').trim();
 
         if (textToEcho) {
