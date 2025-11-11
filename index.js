@@ -11,11 +11,11 @@ const color = '#704536'; // Colour of embeds
 // Define all commands in a single object for easy lookup and help generation
 const commands = {
     help: {
-        description: 'Shows this list of available commands, or detailed info for a specific command.',
+        description: 'Fetches sonic feet rule 34',
         usage: `${prefix}help <command>` // Example: ?help echo
     },
     echo: {
-        description: 'Repeats the text you type and deletes your original command message (requires bot permission).',
+        description: 'Repeats your message',
         usage: `${prefix}echo <text>` // Example: ?echo Hello there!
     },
     // Add new commands to this object as you create them!
@@ -113,4 +113,5 @@ client.on('messageCreate', async message => {
 });
 
 // Log the bot in
+
 client.login(token);
