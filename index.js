@@ -195,6 +195,120 @@ client.on('messageCreate', async message => {
             message.reply('An error occurred while trying to kick this member.');
         }
     }
+
+    // --- 4. BAN COMMAND ---
+    if (command === 'ban') {
+        // --- 1. EXECUTOR PERMISSION CHECK (CUSTOM) ---
+        const canExecutorUseCommand = message.member.roles.cache.has(OWNER_ROLE_ID) || message.member.roles.cache.has(MOD_ROLE_ID);
+        if (!canExecutorUseCommand) {
+            return message.reply("You do not have permission to use this command.");
+        }
+
+        // --- 2. GET TARGET USER ---
+        const target = message.mentions.members.first();
+        if (!target) {
+            return message.reply(`You must specify a user to ban. Usage: \`${commands.ban.usage}\``);
+        }
+
+        // --- 3. HIERARCHY CHECK (CUSTOM ROLES) ---
+        const executorIsOwner = message.member.roles.cache.has(OWNER_ROLE_ID);
+        const targetIsMod = target.roles.cache.has(MOD_ROLE_ID);
+        const targetIsOwner = target.roles.cache.has(OWNER_ROLE_ID);
+
+        if (targetIsOwner) {
+            return message.reply("try that again and see what happens...");
+        }
+        if (targetIsMod && !executorIsOwner) {
+            return message.reply("nice try buddy");
+        }
+
+        // --- 4. BOT PERMISSION CHECK (DISCORD API) ---
+        if (!target.bannable) {
+            return message.reply("I am missing permissions");
+        }
+
+        // --- 5. EXECUTE BAN ---
+        const reason = args.slice(1).join(' ').trim() || 'No reason provided';
+        try {
+            await target.ban({ reason: reason });
+            const banEmbed = new EmbedBuilder()
+                .setColor(color)
+                .setTitle('Member Kicked')
+                .addFields(
+                    { name: 'User', value: target.user.tag, inline: true },
+                    { name: 'Banned by', value: message.author.tag, inline: true },
+                    { name: 'Reason', value: reason, inline: false }
+                )
+                .setTimestamp();
+            message.channel.send({ embeds: [banEmbed] });
+        } catch (error) {
+            console.error(error);
+            message.reply('An error occurred while trying to ban this member.');
+        }
+    }
+
+    // --- 5. TIMEOUT COMMAND ---
+    if (command === 'timeout') {
+        // --- 1. EXECUTOR PERMISSION CHECK (CUSTOM) ---
+        const canExecutorUseCommand = message.member.roles.cache.has(OWNER_ROLE_ID) || message.member.roles.cache.has(MOD_ROLE_ID);
+        if (!canExecutorUseCommand) {
+            return message.reply("You do not have permission to use this command.");
+        }
+
+        // --- 2. GET TARGET USER ---
+        const target = message.mentions.members.first();
+        if (!target) {
+            return message.reply(`You must specify a user. Usage: \`${commands.timeout.usage}\``);
+        }
+
+        // --- 3. HIERARCHY CHECK (CUSTOM ROLES) ---
+        const executorIsOwner = message.member.roles.cache.has(OWNER_ROLE_ID);
+        const targetIsMod = target.roles.cache.has(MOD_ROLE_ID);
+        const targetIsOwner = target.roles.cache.has(OWNER_ROLE_ID);
+
+        if (targetIsOwner) {
+            return message.reply("try that again and see what happens...");
+        }
+        if (targetIsMod && !executorIsOwner) {
+            return message.reply("nice try buddy");
+        }
+
+        // --- 4. GET DURATION & REASON ---
+        const durationMinutes = parseInt(args[1]);
+        if (isNaN(durationMinutes) || durationMinutes <= 0) {
+            return message.reply(`You must provide a valid duration in *minutes*. Usage: \`${commands.timeout.usage}\``);
+        }
+        const durationMs = durationMinutes * 60 * 1000;
+        const maxTimeoutMs = 28 * 24 * 60 * 60 * 1000; // 28 days
+        if (durationMs > maxTimeoutMs) {
+            return message.reply('The maximum timeout duration is 28 days.');
+        }
+        const reason = args.slice(2).join(' ').trim() || 'No reason provided';
+
+        // --- 5. BOT PERMISSION CHECK (DISCORD API) ---
+        if (!target.moderatable) {
+            return message.reply("I am missing permissions");
+        }
+
+        // --- 6. EXECUTE TIMEOUT ---
+        try {
+            await target.timeout(durationMs, reason);
+            const timeoutEmbed = new EmbedBuilder()
+                .setColor(color)
+                .setTitle('Member Timed Out')
+                .addFields(
+                    { name: 'User', value: target.user.tag, inline: true },
+                    { name: 'Duration', value: `${durationMinutes} minute(s)`, inline: true },
+                    { name: 'Timed out by', value: message.author.tag, inline: false },
+                    { name: 'Reason', value: reason, inline: false }
+                )
+                .setTimestamp();
+            message.channel.send({ embeds: [timeoutEmbed] });
+        } catch (error) {
+            console.error(error);
+            message.reply('An error occurred while trying to time out this member.');
+        }
+    }
 });
 
 // Log the bot in
