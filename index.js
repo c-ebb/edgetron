@@ -1,5 +1,6 @@
 import { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField } from 'discord.js';
 import * as dotenv from 'dotenv';
+import express from 'express';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -311,8 +312,19 @@ client.on('messageCreate', async message => {
     }
 });
 
+// --- KEEPALIVE WEB SERVER (REQUIRED FOR RENDER) ---
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Edgetron Bot is alive!');
+});
+
+app.listen(port, () => {
+    console.log(`🌐 Keep-alive server listening on port ${port}`);
+});
+// --------------------------------------------------
+
 // Log the bot in
 
 client.login(token);
-
-
